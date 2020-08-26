@@ -7,20 +7,28 @@ bot = telebot.TeleBot('1089262513:AAEKgwH1drH3vymrnaN79h1jM8JEQ4HRpK0')
 player_link = ''
 
 # Запрашиваем URL
-page = requests.get('https://www.hltv.org/stats/players?startDate=all')
+#page = requests.get('https://www.hltv.org/stats/players?startDate=all')
 
 # Скачиваем страницу
-soup = BeautifulSoup(page.content, "html.parser")
+#soup = BeautifulSoup(page.content, "html.parser")
 
 # Скрапим данные
 player_list = []
-for i in range(1, 8):
-    name = soup.select('tr')[i].select('a')[0]['href']
-    i += 1
-
-    name = name.replace('?startDate=all', '').replace('/stats/players/', '')
-    player_list.append(name)
+#for i in range(1, 8):
+#    name = soup.select('tr')[i].select('a')[0]['href']
+#    i += 1
+#
+#    name = name.replace('?startDate=all', '').replace('/stats/players/', '')
+#    player_list.append(name)
     # print(name)
+s = sum(1 for line in open('players.txt', 'r'))  # волшебный подсчет строк в файле
+
+
+with open('players.txt', 'r') as f:
+    player_list.append(f.readlines()[76])
+
+
+print(player_list)
 
 login = input('Введите ник игрока: ')
 
