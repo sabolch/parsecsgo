@@ -21,25 +21,45 @@ player_list = []
 #    name = name.replace('?startDate=all', '').replace('/stats/players/', '')
 #    player_list.append(name)
     # print(name)
-s = sum(1 for line in open('players.txt', 'r'))  # волшебный подсчет строк в файле
+count_lines = sum(1 for line in open('players.txt', 'r'))  # волшебный подсчет строк в файле
 
 
-with open('players.txt', 'r') as f:
-    player_list.append(f.readlines()[76])
+# Формирование списка из ников и айди
+for i in range(0, count_lines):
+    with open('players.txt', 'r') as f:
+        player_list.append(f.readlines()[i].replace('\n', ''))
+    i += 0
 
 
 print(player_list)
 
-login = input('Введите ник игрока: ')
-
+# login = input('Введите ник игрока: ')
+login = 's1mple'
+# поиск по нику среди списка
 for j in range(0, len(player_list)):
     if login == player_list[j][-len(login):]:
         player_link = player_list[j]
+        print("YES")
         break
     else:
+        print("NO")
         j += 1
 
-print('https://www.hltv.org/stats/players/'+player_link)
+print('https://www.hltv.org/stats/players/matches/'+player_link)
+
+# Запрашиваем URL
+page = requests.get('https://www.hltv.org/stats/players/matches/'+player_link)
+
+# Скачиваем страницу
+soup = BeautifulSoup(page.content, "html.parser")
+date = soup.select('tbody')[0].select('tr')[2].select('td')[0].find('div').contents[0]
+print(date)
+usr_date = '23/8/20'
+if date == usr_date:
+    link_match = soup.select('tbody')[0].select('tr')[2].select('td')[0].find('a')['href']
+    print('https://www.hltv.org' + link_match)
+else:
+    print("Ne naydeno")
 
 
 @bot.message_handler(commands=['start'])
