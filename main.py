@@ -3,18 +3,30 @@ import requests
 from datetime import datetime, date, time
 from bs4 import BeautifulSoup
 from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP
+import datetime
 
 bot = telebot.TeleBot('1089262513:AAEKgwH1drH3vymrnaN79h1jM8JEQ4HRpK0')
 player_link = ''
 player_list = []
-
+global date_message
 # d_user = input("date")
 
-d1 = date(2020, 8, 1)
+d1 = date(2019, 1, 1)
 d2 = date.today()
-print(d2)
+print(d2.strftime('%Y.%m.%d'))
 
 
+# функция построения диапазона дат от d1 до d2
+def date_range(d1, d2):
+    return (d1 + datetime.timedelta(days=i) for i in range((d2 - d1).days + 1))
+
+
+# вывод всех
+for d in date_range(d1, d2):
+    print(d.strftime('%Y.%m.%d'))
+
+
+# функция календаря, принимает мессендж
 def start(m):
     calendar, step = DetailedTelegramCalendar().build()
     bot.send_message(m.chat.id,
@@ -22,6 +34,7 @@ def start(m):
                      reply_markup=calendar)
 
 
+# Настройки календаря
 @bot.callback_query_handler(func=DetailedTelegramCalendar.func())
 def cal(c):
     result, key, step = DetailedTelegramCalendar(locale='ru', min_date=d1, max_date=d2).process(c.data)
@@ -31,11 +44,13 @@ def cal(c):
                               c.message.message_id,
                               reply_markup=key)
     elif result:
-        bot.edit_message_text(f"Min: {result}",
+        bot.edit_message_text(f"Min: {result.strftime('%d.%m.%Y')}",
                               c.message.chat.id,
                               c.message.message_id)
 
+        print(f"qqqq {c.message.message_id}")
 
+print()
 # Декоратор для обработки всех текстовых сообщений
 @bot.message_handler(content_types=['text'])
 def all_messages(message):
