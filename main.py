@@ -16,18 +16,15 @@ print(d2.strftime('%Y.%m.%d'))
 
 
 # Декоратор для обработки всех текстовых сообщений
-@bot.message_handler(content_types=['text'])
+@bot.message_handler(commands=['start'])
 def all_messages(message):
     # функция календаря, принимает мессендж
-    def start(m):
+    def start(m, v_string):
         calendar, step = DetailedTelegramCalendar().build()
         bot.send_message(m.chat.id,
-                         f"Select {LSTEP[step]}",
+                         f"{v_string} {LSTEP[step]}",
                          reply_markup=calendar)
-
-
-
-
+        return message.message_id
 
     # Настройки календаря
     @bot.callback_query_handler(func=DetailedTelegramCalendar.func())
@@ -52,39 +49,9 @@ def all_messages(message):
             for d in date_range(first_date, d2):
                 print(d.strftime('%Y.%m.%d'))
 
+    start(message, v_string='Выберите начальную дату')
 
-            def start2(m):
-                calendar, step = DetailedTelegramCalendar().build()
-                bot.send_message(m.chat.id,
-                                 f"Select {LSTEP[step]}",
-                                 reply_markup=calendar)
-
-            start2(message)
-
-            def cal2(c):
-                result, key, step = DetailedTelegramCalendar(locale='ru', min_date=d1, max_date=d2).process(c.data)
-                if not result and key:
-                    bot.edit_message_text(f"Select {LSTEP[step]}",
-                                          c.message.chat.id,
-                                          c.message.message_id,
-                                          reply_markup=key)
-                elif result:
-                    bot.edit_message_text(f"Min: {result.strftime('%d.%m.%Y')}",
-                                          c.message.chat.id,
-                                          c.message.message_id)
-
-                    # функция построения диапазона дат от d1 до d2
-                    def date_range(d1, d2):
-                        return (d1 + datetime.timedelta(days=i) for i in range((d2 - d1).days + 1))
-
-                    second_date = result
-                    # вывод всех
-                    for d in date_range(first_date, second_date):
-                        print(d.strftime('%Y.%m.%d'))
-
-
-    start(message)
-
+    # need button1-d1 > button2-d2
 
 # Запрашиваем URL
 # page = requests.get('https://www.hltv.org/stats/players?startDate=all')
