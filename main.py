@@ -12,7 +12,61 @@ player_list = []
 
 d1 = date(2019, 1, 1)
 d2 = date.today()
-print(d2.strftime('%Y.%m.%d'))
+
+
+# print(d2.strftime('%Y.%m.%d'))
+
+
+@bot.message_handler(commands=['.'])
+# после подтверждения ника появляются кнопки
+def in_date(message):
+    # функция календаря, принимает мессендж
+    def start(m, v_string):
+        calendar, step = DetailedTelegramCalendar().build()
+        bot.send_message(m.chat.id,
+                         f"{v_string} {LSTEP[step]}",
+                         reply_markup=calendar)
+
+
+        return message.message_id
+
+    # Настройки календаря
+    @bot.callback_query_handler(func=DetailedTelegramCalendar.func())
+    def cal(c):
+        result, key, step = DetailedTelegramCalendar(locale='ru', min_date=d1, max_date=d2).process(c.data)
+        if not result and key:
+            bot.edit_message_text(f"Select {LSTEP[step]}",
+                                  c.message.chat.id,
+                                  c.message.message_id,
+                                  reply_markup=key)
+        elif result:
+            bot.edit_message_text(f"Min: {result.strftime('%d.%m.%Y')}",
+                                  c.message.chat.id,
+                                  c.message.message_id)
+
+            # функция построения диапазона дат от d1 до d2
+            def date_range(d1, d2):
+                return (d1 + datetime.timedelta(days=i) for i in range((d2 - d1).days + 1))
+
+            first_date = result
+            # вывод всех
+            for d in date_range(first_date, d2):
+                print(d.strftime('%Y.%m.%d'))
+
+    markup = telebot.types.InlineKeyboardMarkup()
+    button = telebot.types.InlineKeyboardButton(text='Выбрать начало', callback_data='first_date')
+    markup.add(button)
+    button = telebot.types.InlineKeyboardButton(text='Выбрать конец', callback_data='second_date')
+    markup.add(button)
+    bot.send_message(chat_id=message.chat.id, text='Some text', reply_markup=markup)
+
+    @bot.callback_query_handler(func=lambda call: True)
+    def query_handler(call):
+        if call.data == 'first_date':
+            bot.answer_callback_query(callback_query_id=call.id, text='Hello world')
+            start(message, v_string='Выберите начальную дату')
+        if call.data == 'second_date':
+            bot.answer_callback_query(callback_query_id=call.id, text='Sad world')
 
 
 # Декоратор для обработки всех текстовых сообщений
@@ -52,6 +106,7 @@ def all_messages(message):
     start(message, v_string='Выберите начальную дату')
 
     # need button1-d1 > button2-d2
+
 
 # Запрашиваем URL
 # page = requests.get('https://www.hltv.org/stats/players?startDate=all')
