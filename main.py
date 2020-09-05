@@ -58,7 +58,7 @@ def in_date(message):
     markup.add(button)
     button = telebot.types.InlineKeyboardButton(text='Выбрать конец', callback_data='second_date')
     markup.add(button)
-    bot.send_message(chat_id=message.chat.id, text='Some text', reply_markup=markup)
+    bot.send_message(chat_id=message.chat.id, text='Выберите начальную и конечную даты', reply_markup=markup)
 
     @bot.callback_query_handler(func=lambda call: True)
     def query_handler(call):
